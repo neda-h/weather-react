@@ -36,7 +36,7 @@ export default function Weather() {
   }
   function showTempreture(response) {
     console.log(response.data);
-    if (response.data.status != "not_found") {
+    if (response.data.status !== "not_found") {
       setFirst(false);
       formatDate(response.data.daily[0].time * 1000);
       setWeatherInfo({
@@ -44,7 +44,7 @@ export default function Weather() {
         temperature: Math.round(response.data.daily[0].temperature.day),
         description: response.data.daily[0].condition.description,
         humidity: Math.round(response.data.daily[0].temperature.humidity),
-        wind: response.data.daily[0].wind.speed,
+        wind: Math.round(response.data.daily[0].wind.speed),
         iconUrl: response.data.daily[0].condition.icon_url,
         icon: response.data.daily[0].condition.icon,
       });
@@ -60,7 +60,12 @@ export default function Weather() {
   function updateCity(event) {
     setCity(event.target.value);
   }
-
+  function changeToFahrenheitTemperature(event) {
+    event.preventDefault();
+  }
+  function changeToCelsiusTemperature(event) {
+    event.preventDefault();
+  }
   return (
     <div className="weather-wrapper">
       <div className="weather">
@@ -120,11 +125,20 @@ export default function Weather() {
                       {weatherInfo.temperature}
                     </strong>
                     <span className="units">
-                      <a href="" className="disable-link" id="celsius-link">
+                      <a
+                        href="/"
+                        className="disable-link"
+                        onClick={changeToCelsiusTemperature}
+                        id="celsius-link"
+                      >
                         °C
                       </a>
                       |{" "}
-                      <a href="" id="fahrenheit-link">
+                      <a
+                        href="/"
+                        onClick={changeToFahrenheitTemperature}
+                        id="fahrenheit-link"
+                      >
                         °F
                       </a>
                     </span>
@@ -156,16 +170,10 @@ export default function Weather() {
                           alt={day.condition.description}
                         />
                         <div class="next-temp">
-                          <span
-                            class="next-day-max"
-                            id="next-day-temp-max-${index}"
-                          >
+                          <span class="next-day-max">
                             {Math.round(day.temperature.maximum)}
                           </span>
-                          <span
-                            class="next-day-min"
-                            id="next-day-temp-min-${index}"
-                          >
+                          <span class="next-day-min">
                             {Math.round(day.temperature.minimum)}
                           </span>
                         </div>
@@ -179,7 +187,6 @@ export default function Weather() {
         ) : (
           <div className="row">
             <div className="mb-3">
-              <h1></h1>
               <div className="row"></div>
             </div>
           </div>
@@ -191,8 +198,9 @@ export default function Weather() {
             <span className="tooltip">Github</span>
             <a
               className="none-link"
+              rel="noreferrer"
               target="_blank"
-              href="https://github.com/neda-h/my-exercise-projects/tree/main/WeatherApp"
+              href="https://github.com/neda-h/weather-react"
             >
               <i className="fab fa-github"></i>
             </a>
