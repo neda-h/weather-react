@@ -209,7 +209,7 @@ export default function Weather() {
         <small>
           <a
             className="footer-link"
-            href="https://github.com/neda-h/my-exercise-projects/tree/main/WeatherApp"
+            href="https://github.com/neda-h/weather-react"
           >
             Open-source code{" "}
           </a>
