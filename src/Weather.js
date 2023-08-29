@@ -8,6 +8,13 @@ export default function Weather() {
   let [city, setCity] = useState("");
   let [weatherInfo, setWeatherInfo] = useState({});
   let [update, setUpdate] = useState();
+
+  if (city === "") {
+    setCity("Sari");
+    let apiKey = "af253f0a8o48e8b1400ef66f4294tdf3";
+    let apiUrl = "https://api.shecodes.io/weather/v1/forecast?units=metric";
+    axios.get(`${apiUrl}&query=sari&key=${apiKey}`).then(showTempreture);
+  }
   function formatDate(timespan) {
     let date = new Date(timespan);
     let days = [
@@ -77,6 +84,7 @@ export default function Weather() {
                 type="search"
                 id="search-text"
                 onChange={updateCity}
+                defaultValue="Sari"
                 className="search-text"
                 aria-labelledby="placeholder-search-text"
               />
