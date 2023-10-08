@@ -7,7 +7,7 @@ const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
   <React.StrictMode>
     <div className="App">
-      <Weather />{" "}
+      <Weather firstCity="sari" />{" "}
     </div>
   </React.StrictMode>
 );
