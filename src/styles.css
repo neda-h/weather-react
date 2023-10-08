@@ -177,20 +177,23 @@ input,
   padding: 0;
 }
 .next-day {
-  font-weight: 700;
-  font-size: 14px;
+  font-size: 16px;
+  line-height: 20px;
   text-align: center;
+  color: #473f5d;
 }
 .next-day-max {
   font-weight: 700;
-  font-size: 14px;
+  font-size: 16px;
   text-align: center;
-  padding-right: 3px;
+  padding-right: 4px;
+  color: #673fd7;
 }
 .next-day-min {
-  padding-left: 3px;
-  font-weight: 400;
-  font-size: 14px;
+  padding-left: 4px;
+  font-weight: 700;
+  font-size: 16px;
+  color: #9170eb;
 }
 .none-link {
   color: inherit;

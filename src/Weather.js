@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "./styles.css";
+import ReactAnimatedWeather from "react-animated-weather";
 
 export default function Weather() {
   let [first, setFirst] = useState(true);
@@ -8,12 +9,34 @@ export default function Weather() {
   let [city, setCity] = useState("");
   let [weatherInfo, setWeatherInfo] = useState({});
   let [update, setUpdate] = useState();
+  let iconMatching = {
+    "01d": "CLEAR_DAY",
+    "01n": "CLEAR_NIGHT",
+    "02d": "PARTLY_CLOUDY_DAY",
+    "02n": "PARTLY_CLOUDY_NIGHT",
+    "03d": "CLOUDY",
+    "03n": "CLOUDY",
+    "04d": "CLOUDY",
+    "04n": "CLOUDY",
+    "09d": "RAIN",
+    "09n": "RAIN",
+    "10d": "RAIN",
+    "10n": "RAIN",
+    "11d": "SLEET",
+    "11n": "SLEET",
+    "13d": "SNOW",
+    "13n": "SNOW",
+    "50d": "FOG",
+    "50n": "FOG",
+  };
 
   if (city === "") {
     setCity("Sari");
-    let apiKey = "af253f0a8o48e8b1400ef66f4294tdf3";
-    let apiUrl = "https://api.shecodes.io/weather/v1/forecast?units=metric";
-    axios.get(`${apiUrl}&query=sari&key=${apiKey}`).then(showTempreture);
+    let apiKey = "5f472b7acba333cd8a035ea85a0d4d4c";
+    let apiUrl = "https://api.openweathermap.org";
+    axios
+      .get(`${apiUrl}/data/2.5/forecast?appid=${apiKey}&units=metric&q=sari`)
+      .then(showTempreture);
   }
   function formatDate(timespan) {
     let date = new Date(timespan);
@@ -33,7 +56,7 @@ export default function Weather() {
     if (minutes < 10) minutes = `0${minutes}`;
 
     let fullDate = ` ${day}  ${hour}:${minutes} `;
-    setUpdate(fullDate);
+    return fullDate;
   }
   function getDayName(timespan) {
     let date = new Date(timespan);
@@ -41,28 +64,49 @@ export default function Weather() {
     let day = days[date.getDay()];
     return day;
   }
+  function handleForecast(response) {
+    let daily = response.data.daily;
+    console.log(response);
+    setUpdate(formatDate(response.data.current.dt * 1000));
+    setForecast(
+      [0, 1, 2, 3, 4].map((index) => {
+        return {
+          icon: daily[index].weather[0].icon,
+          min_temp: Math.round(daily[index].temp.min),
+          max_temp: Math.round(daily[index].temp.max),
+          day: getDayName(daily[index].dt * 1000),
+        };
+      })
+    );
+  }
   function showTempreture(response) {
-    console.log(response.data);
-    if (response.data.status !== "not_found") {
+    if (response !== null && response.data.status !== "not_found") {
+      console.log(response);
       setFirst(false);
-      formatDate(response.data.daily[0].time * 1000);
       setWeatherInfo({
-        city: response.data.city,
-        temperature: Math.round(response.data.daily[0].temperature.day),
-        description: response.data.daily[0].condition.description,
-        humidity: Math.round(response.data.daily[0].temperature.humidity),
-        wind: Math.round(response.data.daily[0].wind.speed),
-        iconUrl: response.data.daily[0].condition.icon_url,
-        icon: response.data.daily[0].condition.icon,
+        city: response.data.city.name,
+        temperature: Math.round(response.data.list[0].main.temp),
+        description: response.data.list[0].weather[0].description,
+        humidity: Math.round(response.data.list[0].main.humidity),
+        wind: response.data.list[0].wind.speed,
+        icon: response.data.list[0].weather[0].icon,
       });
-      setForecast(response.data.daily);
+
+      let apiKey = "5f472b7acba333cd8a035ea85a0d4d4c";
+      let longitude = response.data.city.coord.lon;
+      let latitude = response.data.city.coord.lat;
+      let apiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
+
+      axios.get(apiUrl).then(handleForecast);
     }
   }
+
   function handleSubmit(event) {
     event.preventDefault();
-    let apiKey = "af253f0a8o48e8b1400ef66f4294tdf3";
-    let apiUrl = "https://api.shecodes.io/weather/v1/forecast?units=metric";
-    axios.get(`${apiUrl}&query=${city}&key=${apiKey}`).then(showTempreture);
+    let apiKey = "5f472b7acba333cd8a035ea85a0d4d4c";
+    let apiUrl = `https://api.openweathermap.org/data/2.5/forecast?q=${city}&appid=${apiKey}&units=metric`;
+
+    axios.get(apiUrl).then(showTempreture);
   }
   function updateCity(event) {
     setCity(event.target.value);
@@ -112,10 +156,12 @@ export default function Weather() {
               <h1 id="city">{weatherInfo.city}</h1>
               <div className="row">
                 <ul>
-                  <li>
-                    last updated: <span id="date-span"> {update}</span>
+                  <li id="li-up">
+                    <span id="date-span"> {update}</span>
                   </li>
-                  <li id="weather-desc">{weatherInfo.description}</li>
+                  <li id="weather-desc" className="text-capitalize">
+                    {weatherInfo.description}
+                  </li>
                 </ul>
               </div>
             </div>
@@ -123,11 +169,15 @@ export default function Weather() {
             <div className="row" id="current-temp-div">
               <div className="col-8">
                 <div className="d-flex weather-temperature">
-                  <img
-                    id="icon"
-                    src={weatherInfo.iconUrl}
-                    alt={weatherInfo.icon}
-                  />
+                  <div className="temp-img">
+                    {" "}
+                    <ReactAnimatedWeather
+                      icon={iconMatching[weatherInfo.icon]}
+                      color="#000"
+                      size={52}
+                      animate={true}
+                    />
+                  </div>
                   <div>
                     <strong id="temperature" className="temp">
                       {weatherInfo.temperature}
@@ -155,39 +205,33 @@ export default function Weather() {
               </div>
               <div className="col-4">
                 <ul>
-                  <li>
+                  <li id="li-h">
                     Humidity: <span id="humidity">{weatherInfo.humidity}</span>%
                   </li>
-                  <li>
+                  <li id="li-w">
                     Wind: <span id="wind-speed">{weatherInfo.wind}</span> km/h
                   </li>
                 </ul>
               </div>
             </div>
             <div className="weather-forecast mt-4" id="forecast">
-              <div className="row" id="forecast">
+              <div className="row mt-4" id="forecast">
                 {forecast.map(function (day, index) {
-                  if (index >= 1)
-                    return (
-                      <div class="col-2">
-                        <div class="next-day">
-                          {getDayName(day.time * 1000)}
-                        </div>
-                        <img
-                          src={day.condition.icon_url}
-                          alt={day.condition.description}
-                        />
-                        <div class="next-temp">
-                          <span class="next-day-max">
-                            {Math.round(day.temperature.maximum)}
-                          </span>
-                          <span class="next-day-min">
-                            {Math.round(day.temperature.minimum)}
-                          </span>
-                        </div>
+                  return (
+                    <div className="col">
+                      <div className="next-day mb-3">{day.day}</div>
+                      <ReactAnimatedWeather
+                        icon={iconMatching[day.icon]}
+                        color="#000"
+                        size={38}
+                        animate={true}
+                      />
+                      <div className="next-temp mt-2">
+                        <span className="next-day-max">{day.max_temp}°</span>
+                        <span className="next-day-min">{day.min_temp}°</span>
                       </div>
-                    );
-                  else return <div></div>;
+                    </div>
+                  );
                 })}
               </div>
             </div>
@@ -202,7 +246,7 @@ export default function Weather() {
       </div>
       <div>
         <ul className="wrapper">
-          <li className="icon github">
+          <li className="icon github" id="li-git">
             <span className="tooltip">Github</span>
             <a
               className="none-link"
