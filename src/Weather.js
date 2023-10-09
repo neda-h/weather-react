@@ -1,11 +1,11 @@
 import React, { useState } from "react";
 import axios from "axios";
 import "./styles.css";
+import WeatherForecast from "./WeatherForecast";
 import ReactAnimatedWeather from "react-animated-weather";
 
 export default function Weather(props) {
   let [first, setFirst] = useState(true);
-  let [forecast, setForecast] = useState([{}]);
   let [city, setCity] = useState(props.firstCity);
   let [weatherInfo, setWeatherInfo] = useState({});
   let [update, setUpdate] = useState();
@@ -50,32 +50,12 @@ export default function Weather(props) {
     let fullDate = ` ${day}  ${hour}:${minutes} `;
     return fullDate;
   }
-  function getDayName(timespan) {
-    let date = new Date(timespan);
-    let days = ["Sun", "Mo", "Tue", "Wed", "Thu", "Fri", "Sat"];
-    let day = days[date.getDay()];
-    return day;
-  }
-  function handleForecast(response) {
-    let daily = response.data.daily;
-    console.log("*" + response);
-    setUpdate(formatDate(response.data.current.dt * 1000));
-    setForecast(
-      [0, 1, 2, 3, 4].map((index) => {
-        return {
-          icon: daily[index].weather[0].icon,
-          min_temp: Math.round(daily[index].temp.min),
-          max_temp: Math.round(daily[index].temp.max),
-          day: getDayName(daily[index].dt * 1000),
-        };
-      })
-    );
-  }
   function showTempreture(response) {
     if (response !== null && response.data.status !== "not_found") {
       console.log(response);
       setFirst(false);
       setWeatherInfo({
+        coordinate: response.data.coord,
         city: response.data.name,
         temperature: Math.round(response.data.main.temp),
         description: response.data.weather[0].description,
@@ -83,13 +63,7 @@ export default function Weather(props) {
         wind: response.data.wind.speed,
         icon: response.data.weather[0].icon,
       });
-
-      let apiKey = "2980ff43226d67e53abfcdb6d457dcc8";
-      let longitude = response.data.coord.lon;
-      let latitude = response.data.coord.lat;
-      let apiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
-
-      axios.get(apiUrl).then(handleForecast);
+      setUpdate(formatDate(response.data.dt * 1000));
     }
   }
   function updateTemperature() {
@@ -209,27 +183,7 @@ export default function Weather(props) {
                   </ul>
                 </div>
               </div>
-              <div className="weather-forecast mt-4" id="forecast">
-                <div className="row mt-4" id="forecast">
-                  {forecast.map(function (day, index) {
-                    return (
-                      <div className="col">
-                        <div className="next-day mb-3">{day.day}</div>
-                        <ReactAnimatedWeather
-                          icon={iconMatching[day.icon]}
-                          color="#000"
-                          size={38}
-                          animate={true}
-                        />
-                        <div className="next-temp mt-2">
-                          <span className="next-day-max">{day.max_temp}°</span>
-                          <span className="next-day-min">{day.min_temp}°</span>
-                        </div>
-                      </div>
-                    );
-                  })}
-                </div>
-              </div>
+              <WeatherForecast coord={weatherInfo.coordinate} />
             </div>
           ) : (
             <div className="row">
