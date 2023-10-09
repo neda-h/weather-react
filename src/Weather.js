@@ -84,7 +84,7 @@ export default function Weather(props) {
         icon: response.data.weather[0].icon,
       });
 
-      let apiKey = "5f472b7acba333cd8a035ea85a0d4d4c";
+      let apiKey = "2980ff43226d67e53abfcdb6d457dcc8";
       let longitude = response.data.coord.lon;
       let latitude = response.data.coord.lat;
       let apiUrl = `https://api.openweathermap.org/data/2.5/onecall?lat=${latitude}&lon=${longitude}&appid=${apiKey}&units=metric`;
@@ -93,7 +93,7 @@ export default function Weather(props) {
     }
   }
   function updateTemperature() {
-    const apiKey = "5f472b7acba333cd8a035ea85a0d4d4c";
+    const apiKey = "2980ff43226d67e53abfcdb6d457dcc8";
     let apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}&units=metric`;
     axios.get(apiUrl).then(showTempreture);
   }
